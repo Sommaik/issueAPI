@@ -1,11 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { MongoClient, ObjectID } from 'mongodb';
+import { mongodb} from '../helpers/mongoDB';
+import * as auth from '../helpers/auth';
 
 // Assign router to the express.Router() instance
 const router: Router = Router();
-var mongodb;
+// var mongodb;
 
-router.get('/', (req: Request, res: Response) => {
+router.get('/', auth.authenticate(), (req: Request, res: Response) => {
     mongodb.collection("company").find().toArray().then((data) => {
         res.json(data);
     });
@@ -67,12 +69,4 @@ router.post('/search', (req: Request, res: Response) => {
     });
 });
 
-MongoClient.connect(
-    "mongodb://localhost:27017/issuedb", (err, db) => {
-        if (err) {
-            console.log(err);
-        } else {
-            mongodb = db;
-        }
-    });
 export const CompanyController: Router = router;

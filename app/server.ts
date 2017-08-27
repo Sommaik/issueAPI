@@ -1,8 +1,10 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
+import * as auth from './helpers/auth';
 
 import { CompanyController } from './controllers/company';
+import { LoginController  } from './controllers/login';
 
 // Create a new express application instance
 const app: express.Application = express();
@@ -14,8 +16,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+app.use( auth.initialize() );
 
 app.use('/company', CompanyController);
+app.use('/login', LoginController);
 
 // Serve the application at the given port
 app.listen(port, () => {
