@@ -1,10 +1,24 @@
 import { Router, Request, Response } from 'express';
 import { MongoClient, ObjectID } from 'mongodb';
-import { mongodb} from '../helpers/mongoDB';
+import { mongodb } from '../helpers/mongoDB';
 import * as auth from '../helpers/auth';
+import * as multer from 'multer';
+var fs = require('fs');
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+        console.log(file);
+        cb(null, req.params.id)
+    }
+})
+
+var upload = multer({ storage: storage })
 
 const router: Router = Router();
-const collectionName = 'company';
+const collectionName = 'user';
 
 router.use(auth.authenticate());
 
@@ -20,7 +34,7 @@ router.get('/findById/:id', (req: Request, res: Response) => {
         .then((data) => {
             res.json(data);
         }
-    );
+        );
 });
 
 router.post('/', (req: Request, res: Response) => {
@@ -47,27 +61,33 @@ router.put('/:id', (req: Request, res: Response) => {
 
 router.post('/search', (req: Request, res: Response) => {
     let ret = {
-        rows : [],
-        total : 0
+        rows: [],
+        total: 0
     };
     let data = req.body;
     mongodb.collection(collectionName).find(
-        { 
-            compName: new RegExp(`${data.searchText}`)
+        {
+            email: new RegExp(`${data.searchText}`)
         }
-    ).skip(data.numPage*data.rowPerPage)
-    .limit(data.rowPerPage)
-    .toArray().then((rows) => {
-        ret.rows = rows;
-        mongodb.collection(collectionName).find(
-            { 
-                compName: new RegExp(`${data.searchText}`)
-            }
-        ).count().then((data) =>{
-            ret.total = data;
-            res.json(ret);
-        })
+    ).skip(data.numPage * data.rowPerPage)
+        .limit(data.rowPerPage)
+        .toArray().then((rows) => {
+            ret.rows = rows;
+            mongodb.collection(collectionName).find(
+                {
+                    compName: new RegExp(`${data.searchText}`)
+                }
+            ).count().then((data) => {
+                ret.total = data;
+                res.json(ret);
+            })
+        });
+});
+
+router.post('/profile/:id', upload.single('uploads'), (req, res, next) => {
+    res.json({
+        success: true
     });
 });
 
-export const CompanyController: Router = router;
+export const UserController: Router = router;

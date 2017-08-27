@@ -6,6 +6,7 @@
 
 # dependencies
 /node_modules
+/uploads
 
 # IDEs and editors
 /.idea
@@ -32,6 +33,7 @@ npm-debug.log
 testem.log
 /typings
 yarn-error.log
+package-lock.json
 
 # e2e
 /e2e/*.js
